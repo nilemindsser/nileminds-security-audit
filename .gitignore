@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.vscode/
+.env
+.env.*
+!*.example
+security-audit.json
+SECURITY-AUDIT.md
