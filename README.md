@@ -43,3 +43,7 @@ See [architecture](docs/ARCHITECTURE.md), [license notes](docs/THIRD_PARTY.md), 
 Generic tool for any project. No hidden dependency on a particular client, project, or company repository. Never merge security changes without owner approval.
 
 For current v0.2 scope see [release notes](docs/RELEASE-0.2.md) and [Windows installation](docs/INSTALL-WINDOWS.md).
+
+## Third-party skill quarantine (v0.3)
+
+Run python -m nmsa.skill_review PATH_TO_SOURCE --output PATH_TO_EXTERNAL_MANIFEST.json to inventory a cloned skill package without executing it. All external skills remain disabled. See [skill review](docs/SKILL-REVIEW-0.3.md).
