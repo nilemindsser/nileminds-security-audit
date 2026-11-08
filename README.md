@@ -47,3 +47,7 @@ For current v0.2 scope see [release notes](docs/RELEASE-0.2.md) and [Windows ins
 ## Third-party skill quarantine (v0.3)
 
 Run python -m nmsa.skill_review PATH_TO_SOURCE --output PATH_TO_EXTERNAL_MANIFEST.json to inventory a cloned skill package without executing it. All external skills remain disabled. See [skill review](docs/SKILL-REVIEW-0.3.md).
+
+## Manual skill review gate (v0.4)
+
+Use python -m nmsa.review_gate prepare SOURCE --review EXTERNAL_FILE.json, then python -m nmsa.review_gate verify SOURCE --review EXTERNAL_FILE.json. Review records never authorize execution. See [v0.4 review gate](docs/REVIEW-GATE-0.4.md).
