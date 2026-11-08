@@ -17,7 +17,7 @@ python -m nmsa /absolute/path/to/project --output /absolute/path/to/existing-aud
 python -m unittest discover -s tests -v
 ```
 
-Outputs: `SECURITY-AUDIT.md` and `security-audit.json`. The output directory **must already exist outside the project**.
+Outputs: `SECURITY-AUDIT.md`, `security-audit.json`, `security-audit.sarif` and `security-audit.html`. The output directory **must already exist outside the project**.
 
 **Status**: PASS = no findings from enabled successful scanners; REVIEW = non-high findings; FAIL = high/critical findings; INCOMPLETE = one or more scanners unavailable or failed. PASS does **not** mean secure.
 
@@ -25,7 +25,7 @@ Outputs: `SECURITY-AUDIT.md` and `security-audit.json`. The output directory **m
 
 The CLI uses an allowlist of installed scanners, argument-vector execution (no shell), per-scanner timeouts, parsers, and location-based evidence aggregation. CodeQL is **not** included by default; its licensing/use restrictions vary. AI skill frameworks from Cloudflare and other projects are **not executed** by this MVP; they require provenance, license, prompt-injection, and sandbox review first.
 
-Trivy is launched with database-update disabled to avoid automatic network downloads. Its vulnerability coverage will be incomplete until databases are provisioned in a controlled workflow. Semgrep's `auto` configuration may depend on registry access: run only in an explicitly permitted environment and treat network restriction as a deployment requirement.
+Trivy is launched with database-update disabled to avoid automatic network downloads. Its vulnerability coverage will be incomplete until databases are provisioned in a controlled workflow. Semgrep uses bundled minimal local rules; full SAST coverage is not implied. Network isolation of scanner processes must be enforced externally.
 
 ## Safety and known limits
 
@@ -33,7 +33,7 @@ Trivy is launched with database-update disabled to avoid automatic network downl
 - Reports omit secret values but may contain relative filenames and rule identifiers; treat reports as confidential.
 - Initial deduplication matches identical rule/path/line, not semantic duplicate vulnerabilities across different scanners.
 - Scanner exit conventions and JSON versions vary. Validate pinned versions before production use.
-- First version does not generate SARIF/HTML, verify exploitability, inspect AI agent prompt injections, or claim measured precision/recall.
+- First version does not verify exploitability, inspect AI agent prompt injections, or claim measured precision/recall.
 - Offline operation is **not guaranteed** for all scanners until sources/rules/databases are pinned and cached.
 - No automated publishing or code changes from scans.
 
@@ -41,3 +41,5 @@ See [architecture](docs/ARCHITECTURE.md), [license notes](docs/THIRD_PARTY.md), 
 
 ## Governance
 Generic tool for any project. No hidden dependency on a particular client, project, or company repository. Never merge security changes without owner approval.
+
+For current v0.2 scope see [release notes](docs/RELEASE-0.2.md) and [Windows installation](docs/INSTALL-WINDOWS.md).

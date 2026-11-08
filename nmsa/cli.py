@@ -1,4 +1,4 @@
-"""Local, read-only orchestration of installed security scanners.
+﻿"""Local, read-only orchestration of installed security scanners.
 
 No auto-download, shell commands, or AI invocation. Optional binaries are required.
 """
@@ -12,12 +12,9 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from .reports import sarif, html
 
-TOOLS = {
-    "semgrep": ["semgrep", "scan", "--config", "auto", "--json", "--metrics", "off", "--disable-version-check", "--"],
-    "gitleaks": ["gitleaks", "detect", "--no-git", "--report-format", "json", "--report-path"],
-    "trivy": ["trivy", "fs", "--format", "json", "--scanners", "vuln,misconfig,secret", "--no-progress", "--skip-db-update", "--skip-java-db-update"],
-}
+TOOLS = {"semgrep": True, "gitleaks": True, "trivy": True}
 SKIP_DIRS = {".git", "node_modules", ".venv", "venv", "dist", "build"}
 SEVERITY = {"CRITICAL": 4, "HIGH": 3, "ERROR": 3, "MEDIUM": 2, "WARNING": 2, "LOW": 1, "INFO": 0}
 
@@ -25,11 +22,15 @@ SEVERITY = {"CRITICAL": 4, "HIGH": 3, "ERROR": 3, "MEDIUM": 2, "WARNING": 2, "LO
 def run(tool, target, timeout):
     exe = shutil.which(tool)
     if not exe:
+        configured = os.environ.get("NMSA_" + tool.upper() + "_BIN")
+        if configured and Path(configured).is_file():
+            exe = str(Path(configured).resolve())
+    if not exe:
         return {"tool": tool, "status": "NOT_INSTALLED", "findings": [], "message": "Install manually from the official project"}
     with tempfile.TemporaryDirectory(prefix="nmsa-") as tmp:
         result_path = Path(tmp) / "gitleaks.json"
         if tool == "semgrep":
-            cmd = [exe, "scan", "--config", "auto", "--json", "--metrics", "off", "--disable-version-check", str(target)]
+            cmd = [exe, "scan", "--config", str(Path(__file__).with_name("rules.yml")), "--json", "--metrics", "off", "--disable-version-check", str(target)]
         elif tool == "gitleaks":
             cmd = [exe, "dir", str(target), "--report-format", "json", "--report-path", str(result_path), "--no-banner"]
         else:
@@ -38,7 +39,7 @@ def run(tool, target, timeout):
         env["DO_NOT_TRACK"] = "1"
         try:
             proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                  text=True, timeout=timeout, cwd=tmp, env=env, shell=False)
+                                  text=True, encoding="utf-8", errors="replace", timeout=timeout, cwd=tmp, env=env, shell=False)
         except subprocess.TimeoutExpired:
             return {"tool": tool, "status": "TIMEOUT", "findings": [], "message": "Scanner exceeded timeout"}
         except OSError as e:
@@ -48,6 +49,8 @@ def run(tool, target, timeout):
             data = json.loads(raw) if raw.strip() else ([] if tool == "gitleaks" else {})
         except (ValueError, UnicodeError):
             return {"tool": tool, "status": "ERROR", "findings": [], "message": "Invalid scanner JSON; stderr suppressed to avoid leaking secrets"}
+        if tool == "semgrep" and isinstance(data, dict) and data.get("errors"):
+            return {"tool": tool, "status": "ERROR", "findings": [], "message": "Semgrep reported parse or configuration errors"}
         items = parse(tool, data, target)
         # Gitleaks 1 = secrets found; Semgrep 1 = findings; Trivy 0 normally.
         accepted = (0, 1) if tool in ("gitleaks", "semgrep") else (0,)
@@ -85,7 +88,10 @@ def parse(tool, data, root):
         for v in data.get("results", []):
             if not isinstance(v, dict):
                 continue
-            add(results, tool, v.get("check_id", "unknown"), v.get("extra", {}).get("severity", "INFO"),
+            rule_id = str(v.get("check_id", "unknown"))
+            if "nmsa.python." in rule_id:
+                rule_id = rule_id[rule_id.find("nmsa.python."):]
+            add(results, tool, rule_id, v.get("extra", {}).get("severity", "INFO"),
                 v.get("path"), v.get("start", {}).get("line"), root)
     elif tool == "gitleaks" and isinstance(data, list):
         for v in data:
@@ -156,6 +162,8 @@ def main(argv=None):
               "note": "PASS means enabled scanners returned no findings, not a security guarantee."}
     (output / "security-audit.json").write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     (output / "SECURITY-AUDIT.md").write_text(markdown(report), encoding="utf-8")
+    (output / "security-audit.sarif").write_text(json.dumps(sarif(report), indent=2), encoding="utf-8")
+    (output / "security-audit.html").write_text(html(report), encoding="utf-8")
     print(f"Audit: {status}; findings: {len(findings)}; outputs: {output}")
     return 0 if status == "PASS" else 2 if status == "INCOMPLETE" else 1
 

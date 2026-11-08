@@ -9,6 +9,7 @@ class TestAudit(unittest.TestCase):
     def test_semgrep(self):
         r = parse("semgrep", {"results": [{"check_id": "x", "path": "a.py", "start": {"line": 3}, "extra": {"severity": "ERROR"}}]}, Path("."))
         self.assertEqual(r[0]["severity"], "ERROR")
+        self.assertEqual(parse("semgrep", {"results": [{"check_id": "D.project.nmsa.python.eval-use", "path": "a.py"}]}, Path("."))[0]["rule"], "nmsa.python.eval-use")
     def test_gitleaks_does_not_leak_match(self):
         r = parse("gitleaks", [{"RuleID": "secret", "File": "a.txt", "StartLine": 4, "Secret": "DONOTPRINT"}], Path("."))
         self.assertNotIn("DONOTPRINT", str(r))
