@@ -107,3 +107,7 @@ python -m nmsa.docker_log_triage reports bounded, redacted WSL/permission/engine
 ## v1.0 RC8 — Read-only Docker UTC failure timeline
 
 python -m nmsa.docker_timeline correlates bounded local Docker/WSL failure signals into redacted UTC hourly buckets. Time coincidence is not causation or proof of sandbox security. See [RC8 evidence](docs/RC8-DOCKER-TIMELINE-1.0.md).
+
+## v1.0 RC9 — Incident review and safe next action
+
+python -m nmsa.incident_review combines bounded Docker engine and hourly log indicators into a redacted review priority. It never establishes root cause, authorizes remediation or certifies isolation. See [RC9 documentation](docs/RC9-INCIDENT-REVIEW-1.0.md).
