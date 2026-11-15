@@ -111,3 +111,7 @@ python -m nmsa.docker_timeline correlates bounded local Docker/WSL failure signa
 ## v1.0 RC9 — Incident review and safe next action
 
 python -m nmsa.incident_review combines bounded Docker engine and hourly log indicators into a redacted review priority. It never establishes root cause, authorizes remediation or certifies isolation. See [RC9 documentation](docs/RC9-INCIDENT-REVIEW-1.0.md).
+
+## v1.0 RC10 — WSL versus Docker Engine differential
+
+python -m nmsa.wsl_engine_probe uses fixed local Linux uname checks and Docker info to distinguish a WSL outage from a Docker Desktop backend issue. It cannot establish root cause or certify isolation. See [RC10 differential](docs/RC10-WSL-ENGINE-DIFFERENTIAL-1.0.md).
