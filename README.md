@@ -95,3 +95,7 @@ python -m nmsa.runtime_gate --samples 3 --delay 2 requires repeated Docker Linux
 ## v1.0 RC5 — Fixed negative sandbox probes
 
 Run python -m nmsa.sandbox_probes **only** after independently reviewing and preloading a pinned local Docker image. The fixed fixture checks seven restrictions, but it blocks when Docker is unstable, and even a PASS does not certify isolation. See [RC5 probe scope and limitations](docs/RC5-NEGATIVE-PROBES-1.0.md).
+
+## v1.0 RC6 — Read-only Windows Docker diagnostics
+
+Run python -m nmsa.docker_diagnostics for bounded service/context/engine/WSL availability signals without starting services, containers or disclosing raw logs. See [RC6 diagnostics](docs/RC6-DOCKER-DIAGNOSTICS-1.0.md). This does not certify isolation.
