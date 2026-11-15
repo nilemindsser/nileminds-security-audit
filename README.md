@@ -119,3 +119,7 @@ python -m nmsa.wsl_engine_probe uses fixed local Linux uname checks and Docker i
 ## v1.0 RC11 — Real fixed Node.js sandbox probes
 
 python -m nmsa.node_sandbox_probe --run runs only the fixed Node fixture with a locally preloaded SHA256 image ID and Docker hardening flags. Seven real negative probes passed within one Docker Desktop process session; engine persistence across independent process sessions remains unverified. See [RC11 evidence](docs/RC11-SESSION-LIFECYCLE-SANDBOX-1.0.md). No untrusted skills or app code are authorized.
+
+## v1.0 RC12 — Cross-process Docker readiness
+
+python -m nmsa.cross_session_gate --capture <marker> and --confirm <marker> test Linux Docker liveness from separate processes; a marker is local and untrusted, and success does not prove security isolation. RC12 Windows field check returned BLOCKED because Docker Desktop vanished across DeskMCP process sessions. See [RC12 evidence](docs/RC12-CROSS-SESSION-DOCKER-GATE-1.0.md).
