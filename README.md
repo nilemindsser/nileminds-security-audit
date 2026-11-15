@@ -115,3 +115,7 @@ python -m nmsa.incident_review combines bounded Docker engine and hourly log ind
 ## v1.0 RC10 — WSL versus Docker Engine differential
 
 python -m nmsa.wsl_engine_probe uses fixed local Linux uname checks and Docker info to distinguish a WSL outage from a Docker Desktop backend issue. It cannot establish root cause or certify isolation. See [RC10 differential](docs/RC10-WSL-ENGINE-DIFFERENTIAL-1.0.md).
+
+## v1.0 RC11 — Real fixed Node.js sandbox probes
+
+python -m nmsa.node_sandbox_probe --run runs only the fixed Node fixture with a locally preloaded SHA256 image ID and Docker hardening flags. Seven real negative probes passed within one Docker Desktop process session; engine persistence across independent process sessions remains unverified. See [RC11 evidence](docs/RC11-SESSION-LIFECYCLE-SANDBOX-1.0.md). No untrusted skills or app code are authorized.
