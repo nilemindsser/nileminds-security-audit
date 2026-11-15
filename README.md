@@ -83,3 +83,7 @@ The opt-in Semgrep scan now includes a **Community Edition** taint rule tracking
 ## v1.0 RC2 — Fail-closed API fixture targets
 
 API and tenant contract probes now require literal http://127.0.0.1:PORT and simple path-only routes; unknown configuration fields, URL-encoded traversal, DNS-dependent hostnames, redirects and server errors cannot be treated as clean checks. See [RC2 security hardening](docs/RC2-API-HARDENING-1.0.md). No live APIs tested.
+
+## v1.0 RC3 — Immutable sandbox image ID
+
+The benign Docker fixture now requires NMSA_SANDBOX_IMAGE_ID=sha256:<64-hex> for a verified locally installed image and uses --pull never. A mutable tag is never used to execute the fixture. See [RC3 design and blockers](docs/RC3-IMMUTABLE-SANDBOX-1.0.md). Docker runtime isolation remains unverified.
