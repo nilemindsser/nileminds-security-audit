@@ -16,6 +16,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.send_header("Access-Control-Allow-Origin", "*")
         elif self.path == "/leak":
             self.send_response(500)
+        elif self.path == "/redirect":
+            self.send_response(302)
+            self.send_header("Location", "https://example.invalid/private")
         else:
             self.send_response(200)
         self.end_headers()
@@ -65,6 +68,16 @@ class TestApiContract(unittest.TestCase):
             with self.subTest(path=path):
                 with self.assertRaises(ValueError):
                     validate_spec({"endpoints": [{"path": path, "access": "public"}]})
+
+    def test_redirect_not_followed_and_not_clean(self):
+        result = audit(self.base, {"endpoints": [{"path": "/redirect", "access": "public"}]})
+        self.assertEqual(result["verdict"], "INCOMPLETE")
+        self.assertEqual(result["observations"][0]["status"], 302)
+        self.assertNotIn("example.invalid", str(result))
+
+    def test_server_failure_is_not_clean(self):
+        result = audit(self.base, {"endpoints": [{"path": "/leak", "access": "public"}]})
+        self.assertEqual(result["verdict"], "INCOMPLETE")
 
     def test_unreachable_is_not_pass(self):
         result = audit("http://127.0.0.1:1", {"endpoints": [{"path": "/ping", "access": "public"}]})

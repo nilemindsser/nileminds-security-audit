@@ -79,3 +79,7 @@ Additional Semgrep checks flag public JSON Blob writes and cookies explicitly di
 ## v1.0 RC1 — Intra-function JSON data-flow signals
 
 The opt-in Semgrep scan now includes a **Community Edition** taint rule tracking JSON.stringify results to public Blob writes inside the same function, including intermediate variables. It does **not** follow cross-function or cross-file flows. Benchmark: 20 synthetic fixtures; these are not a real-world precision or recall estimate. See [RC1 scope and blockers](docs/RC1-TAINT-1.0.md). Docker isolation is still unverified; external AI skills remain quarantined.
+
+## v1.0 RC2 — Fail-closed API fixture targets
+
+API and tenant contract probes now require literal http://127.0.0.1:PORT and simple path-only routes; unknown configuration fields, URL-encoded traversal, DNS-dependent hostnames, redirects and server errors cannot be treated as clean checks. See [RC2 security hardening](docs/RC2-API-HARDENING-1.0.md). No live APIs tested.
