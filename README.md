@@ -91,3 +91,7 @@ The benign Docker fixture now requires NMSA_SANDBOX_IMAGE_ID=sha256:<64-hex> for
 ## v1.0 RC4 — Docker runtime stability gate
 
 python -m nmsa.runtime_gate --samples 3 --delay 2 requires repeated Docker Linux readiness. The fixed sandbox fixture now blocks startup when the engine drops after initially responding; liveness does **not** prove security isolation. See [RC4 runtime report](docs/RC4-RUNTIME-STABILITY-1.0.md).
+
+## v1.0 RC5 — Fixed negative sandbox probes
+
+Run python -m nmsa.sandbox_probes **only** after independently reviewing and preloading a pinned local Docker image. The fixed fixture checks seven restrictions, but it blocks when Docker is unstable, and even a PASS does not certify isolation. See [RC5 probe scope and limitations](docs/RC5-NEGATIVE-PROBES-1.0.md).
