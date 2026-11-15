@@ -29,6 +29,11 @@ CASES = (
     ("cors-negative", "nmsa.vercel.api-wildcard-cors", False, 'res.setHeader("Access-Control-Allow-Origin", "https://example.test");\n'),
     ("blob-positive", "nmsa.node.public-blob-data-write", True, 'async function save(put, name, body) { await put("data/" + name, body, {access: "public", allowOverwrite: true}); }\n'),
     ("blob-negative", "nmsa.node.public-blob-data-write", False, 'async function save(put, name, body) { await put("uploads/" + name, body, {access: "public"}); }\n'),
+
+    ("jsonblob-positive", "nmsa.storage.public-blob-json-object", True, 'async function write(put, name, data) { await put(name, JSON.stringify(data), {access: "public", addRandomSuffix: false}); }\n'),
+    ("jsonblob-negative", "nmsa.storage.public-blob-json-object", False, 'async function write(put, name, data) { await put(name, JSON.stringify(data), {access: "private", addRandomSuffix: false}); }\n'),
+    ("cookie-positive", "nmsa.node.cookie-http-only-disabled", True, 'res.cookie("session", value, {httpOnly: false, sameSite: "lax"});\n'),
+    ("cookie-negative", "nmsa.node.cookie-http-only-disabled", False, 'res.cookie("session", value, {httpOnly: true, sameSite: "lax"});\n'),
 )
 
 

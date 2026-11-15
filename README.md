@@ -71,3 +71,7 @@ python -m nmsa.tenant_contract --base http://127.0.0.1:PORT --spec fixtures.json
 ## Synthetic Semgrep benchmark (v0.8)
 
 Run python -m nmsa.benchmark --output benchmark.json with Semgrep CE installed. The benchmark currently covers six rules on twelve labeled toy cases and produces TP/FP/FN/TN plus precision and recall. See [benchmark limitations](docs/BENCHMARK-0.8.md). This is not a real-world security accuracy measurement.
+
+## Storage/data evidence review (v0.9)
+
+Additional Semgrep checks flag public JSON Blob writes and cookies explicitly disabling httpOnly. Scanner output is **not** a verified vulnerability. An opt-in `nmsa.evidence` classifier requires independently reviewed non-production reproduction metadata before classifying an issue as validated (documentation, not cryptographic authorization). See [v0.9 evidence notes](docs/EVIDENCE-GATE-0.9.md).

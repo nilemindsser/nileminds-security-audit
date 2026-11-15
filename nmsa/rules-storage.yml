@@ -1,0 +1,20 @@
+rules:
+  - id: nmsa.storage.public-blob-json-object
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: "Public Blob storage of JSON payload; review the object classification and caller access paths."
+    patterns:
+      - pattern: |
+          await $PUT($PATH, JSON.stringify($DATA), { ..., access: "public", ... })
+    metadata: {cwe: "CWE-200", confidence: MEDIUM, category: audit-signal}
+  - id: nmsa.node.cookie-http-only-disabled
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: "Cookie has httpOnly explicitly disabled; review whether it stores an auth or session token."
+    pattern-either:
+      - pattern: |
+          $RES.cookie($NAME, $VALUE, { ..., httpOnly: false, ... })
+      - pattern: |
+          $COOKIE.set($NAME, $VALUE, { ..., httpOnly: false, ... })
+    metadata: {cwe: "CWE-1004", confidence: MEDIUM, category: audit-signal}
+
