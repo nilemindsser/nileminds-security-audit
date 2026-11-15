@@ -36,7 +36,8 @@ class SandboxTests(unittest.TestCase):
         class NotFound:
             returncode = 1
             stdout = ""
-        with patch.dict("os.environ", {"NMSA_SANDBOX_IMAGE_ID": VALID_IMAGE}), patch(
+        with patch("nmsa.sandbox.verify_runtime", return_value={"status": "STABLE_FOR_FIXTURE_PRECHECK"}), patch.dict(
+                "os.environ", {"NMSA_SANDBOX_IMAGE_ID": VALID_IMAGE}), patch(
                 "nmsa.sandbox.shutil.which", return_value="docker"), patch(
                 "nmsa.sandbox.subprocess.run", side_effect=[Result(), NotFound()]) as run:
             self.assertEqual(run_fixture()["reason"], "image_id_not_verified_locally")
@@ -48,7 +49,8 @@ class SandboxTests(unittest.TestCase):
                 docker_command(image_id=image_id)
 
     def test_missing_explicit_id_blocks_before_run(self):
-        with patch.dict("os.environ", {"NMSA_SANDBOX_IMAGE_ID": ""}), patch(
+        with patch("nmsa.sandbox.verify_runtime", return_value={"status": "STABLE_FOR_FIXTURE_PRECHECK"}), patch.dict(
+                "os.environ", {"NMSA_SANDBOX_IMAGE_ID": ""}), patch(
                 "nmsa.sandbox.shutil.which", return_value="docker"), patch(
                 "nmsa.sandbox.subprocess.run") as run:
             run.return_value.returncode = 0
@@ -63,7 +65,8 @@ class SandboxTests(unittest.TestCase):
         class WrongImage:
             returncode = 0
             stdout = "sha256:" + "b" * 64
-        with patch.dict("os.environ", {"NMSA_SANDBOX_IMAGE_ID": VALID_IMAGE}), patch(
+        with patch("nmsa.sandbox.verify_runtime", return_value={"status": "STABLE_FOR_FIXTURE_PRECHECK"}), patch.dict(
+                "os.environ", {"NMSA_SANDBOX_IMAGE_ID": VALID_IMAGE}), patch(
                 "nmsa.sandbox.shutil.which", return_value="docker"), patch(
                 "nmsa.sandbox.subprocess.run", side_effect=[Result(), WrongImage()]) as run:
             self.assertEqual(run_fixture()["reason"], "image_id_not_verified_locally")
