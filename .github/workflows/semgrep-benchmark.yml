@@ -19,6 +19,6 @@ jobs:
         run: python -m nmsa.benchmark --output "$RUNNER_TEMP/benchmark.json"
       - name: Check coverage against labeled fixture expectations
         run: |
-          python -c "import json,os; r=json.load(open(os.environ['RUNNER_TEMP']+'/benchmark.json')); assert r['total']==12 and r['TP']==6 and r['FP']==0 and r['FN']==0 and r['TN']==6, r"
+          python -c "import json,os; r=json.load(open(os.environ['RUNNER_TEMP']+'/benchmark.json')); assert r['total']==16 and r['TP']==8 and r['FP']==0 and r['FN']==0 and r['TN']==8, r"
       - name: Unit tests
         run: python -m unittest discover -s tests -v

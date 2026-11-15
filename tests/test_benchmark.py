@@ -30,7 +30,7 @@ class BenchmarkTests(unittest.TestCase):
     def test_reference_precision_is_not_safety_claim(self):
         result = calculate(CASES, {})
         self.assertEqual(result["TP"], 0)
-        self.assertEqual(result["FN"], 6)
+        self.assertEqual(result["FN"], 8)
         self.assertIsNone(result["precision"])
         self.assertEqual(result["recall"], 0)
 
