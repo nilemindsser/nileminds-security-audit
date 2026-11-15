@@ -1,0 +1,19 @@
+rules:
+  - id: nmsa.storage.json-to-public-blob-same-function
+    mode: taint
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: "JSON-serialized data reaches a public Blob write in the same function; classify payload and verify public-read necessity."
+    metadata:
+      cwe: "CWE-200"
+      confidence: MEDIUM
+      category: audit-signal
+      analysis_scope: intraprocedural
+    pattern-sources:
+      - pattern: JSON.stringify(...)
+        exact: true
+    pattern-sinks:
+      - patterns:
+          - pattern: |
+              $PUT($PATH, $BODY, { ..., access: "public", ... })
+          - focus-metavariable: $BODY

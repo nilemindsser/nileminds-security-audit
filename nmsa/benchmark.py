@@ -34,6 +34,12 @@ CASES = (
     ("jsonblob-negative", "nmsa.storage.public-blob-json-object", False, 'async function write(put, name, data) { await put(name, JSON.stringify(data), {access: "private", addRandomSuffix: false}); }\n'),
     ("cookie-positive", "nmsa.node.cookie-http-only-disabled", True, 'res.cookie("session", value, {httpOnly: false, sameSite: "lax"});\n'),
     ("cookie-negative", "nmsa.node.cookie-http-only-disabled", False, 'res.cookie("session", value, {httpOnly: true, sameSite: "lax"});\n'),
+
+    ("taint-variable-positive", "nmsa.storage.json-to-public-blob-same-function", True, 'async function save(put, path, obj) { const body = JSON.stringify(obj); await put(path, body, {access:"public", allowOverwrite:true}); }\n'),
+    ("taint-variable-negative", "nmsa.storage.json-to-public-blob-same-function", False, 'async function save(put, path, obj) { const body = JSON.stringify(obj); await put(path, body, {access:"private", allowOverwrite:true}); }\n'),
+    ("taint-other-variable-negative", "nmsa.storage.json-to-public-blob-same-function", False, 'async function save(put, path, obj) { const body = JSON.stringify(obj); const publicBody = "public marketing content"; await put(path, publicBody, {access:"public", allowOverwrite:true}); }\n'),
+    ("taint-json-inline-positive", "nmsa.storage.json-to-public-blob-same-function", True, 'async function save(put, path, obj) { await put(path, JSON.stringify(obj), {access:"public", allowOverwrite:true}); }\n'),
+
 )
 
 

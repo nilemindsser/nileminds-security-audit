@@ -75,3 +75,7 @@ Run python -m nmsa.benchmark --output benchmark.json with Semgrep CE installed. 
 ## Storage/data evidence review (v0.9)
 
 Additional Semgrep checks flag public JSON Blob writes and cookies explicitly disabling httpOnly. Scanner output is **not** a verified vulnerability. An opt-in `nmsa.evidence` classifier requires independently reviewed non-production reproduction metadata before classifying an issue as validated (documentation, not cryptographic authorization). See [v0.9 evidence notes](docs/EVIDENCE-GATE-0.9.md).
+
+## v1.0 RC1 — Intra-function JSON data-flow signals
+
+The opt-in Semgrep scan now includes a **Community Edition** taint rule tracking JSON.stringify results to public Blob writes inside the same function, including intermediate variables. It does **not** follow cross-function or cross-file flows. Benchmark: 20 synthetic fixtures; these are not a real-world precision or recall estimate. See [RC1 scope and blockers](docs/RC1-TAINT-1.0.md). Docker isolation is still unverified; external AI skills remain quarantined.
