@@ -9,6 +9,7 @@ import argparse
 import json
 from pathlib import Path
 import os
+import sys
 import re
 
 MAX_LOG_BYTES = 2_000_000
@@ -45,8 +46,12 @@ def safe_log_file(path, root):
     return resolved
 
 
+def running_on_windows():
+    return sys.platform == "win32"
+
+
 def triage(root=None):
-    if os.name != "nt":
+    if not running_on_windows():
         return {"status": "UNSUPPORTED_PLATFORM", "logs_processed": 0,
                 "isolation_verified": False}
     base = Path(root) if root is not None else Path(os.environ.get("LOCALAPPDATA", "")) / "Docker" / "log"

@@ -22,7 +22,7 @@ class DockerLogTriageTests(unittest.TestCase):
             vm.mkdir()
             (host / "com.docker.backend.exe.log").write_text(
                 "backend exited unexpectedly; access denied password=PRIVATE", encoding="utf-8")
-            with patch("nmsa.docker_log_triage.os.name", "nt"):
+            with patch("nmsa.docker_log_triage.running_on_windows", return_value=True):
                 result = triage(temp)
             self.assertEqual(result["status"], "REVIEW")
             self.assertFalse(result["root_cause_confirmed"])
@@ -42,7 +42,7 @@ class DockerLogTriageTests(unittest.TestCase):
 
     def test_missing_logs_do_not_pass(self):
         with tempfile.TemporaryDirectory() as temp:
-            with patch("nmsa.docker_log_triage.os.name", "nt"):
+            with patch("nmsa.docker_log_triage.running_on_windows", return_value=True):
                 result = triage(temp)
             self.assertEqual(result["status"], "INCOMPLETE")
             self.assertEqual(result["logs_processed"], 0)
@@ -52,7 +52,7 @@ class DockerLogTriageTests(unittest.TestCase):
         self.assertEqual(sum(assess_log("hello").values()), 0)
 
     def test_unknown_platform_blocks(self):
-        with patch("nmsa.docker_log_triage.os.name", "posix"):
+        with patch("nmsa.docker_log_triage.running_on_windows", return_value=False):
             result = triage()
         self.assertEqual(result["status"], "UNSUPPORTED_PLATFORM")
 
