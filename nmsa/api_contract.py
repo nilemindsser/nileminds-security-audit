@@ -8,44 +8,34 @@ from __future__ import annotations
 
 import argparse
 import http.client
-import ipaddress
 import json
 from pathlib import Path
 import re
-from urllib.parse import urlsplit
+from .safe_target import validate_fixture_origin, validate_fixture_path
 
 MAX_SPEC = 100_000
-SAFE_PATH = re.compile(r"^/[A-Za-z0-9_./?=&%-]{0,250}$")
+SAFE_PATH = re.compile(r"^/[A-Za-z0-9_./?=&%-]{0,250}$")  # deprecated: use validate_fixture_path
 LEAK = re.compile(r"(?:Traceback \(most recent call last\)|node_modules/|at [A-Za-z0-9_.$]+ \([^)]*:\d+:\d+\)|SQL syntax error)", re.I)
 
 
 def validate_base(base):
-    url = urlsplit(base)
-    if url.scheme != "http" or url.username or url.password or url.query or url.fragment or url.path not in ("", "/"):
-        raise ValueError("Only a plain loopback HTTP origin is permitted")
-    if url.hostname not in ("127.0.0.1", "localhost", "::1"):
-        raise ValueError("Remote targets are never permitted")
-    port = url.port
-    if port is None or not 1 <= port <= 65535:
-        raise ValueError("Explicit local port required")
-    return url.hostname, port
+    return validate_fixture_origin(base)
 
 
 def validate_spec(spec):
-    if not isinstance(spec, dict) or not isinstance(spec.get("endpoints"), list):
+    if not isinstance(spec, dict) or set(spec) != {"endpoints"} or not isinstance(spec.get("endpoints"), list):
         raise ValueError("endpoints list required")
+    if not 1 <= len(spec["endpoints"]) <= 50:
+        raise ValueError("1 to 50 endpoint cases required")
     paths = set()
     for e in spec["endpoints"]:
-        if not isinstance(e, dict) or e.get("access") not in ("protected", "public"):
+        if not isinstance(e, dict) or set(e) != {"path", "access"} or e.get("access") not in ("protected", "public"):
             raise ValueError("endpoint access must be protected or public")
         path = e.get("path")
-        if not isinstance(path, str) or not SAFE_PATH.fullmatch(path) or path.startswith("//") or ".." in path:
-            raise ValueError("invalid API route path")
+        validate_fixture_path(path)
         if path in paths:
             raise ValueError("duplicate path")
         paths.add(path)
-    if len(paths) > 50:
-        raise ValueError("50 endpoints maximum")
     return spec["endpoints"]
 
 
@@ -79,6 +69,12 @@ def audit(base, spec):
             observations.append({"path": path, "status": "UNREACHABLE"})
             continue
         observations.append({"path": path, "status": status})
+        # A redirect may lead outside this test harness. Never follow it or
+        # classify the contract as clean without inspecting route intent.
+        if 300 <= status <= 399 or status >= 500:
+            findings.append({"path": path, "id": "ambiguous-response",
+                             "status": "INCOMPLETE", "observed_status": status,
+                             "reason": "Redirect or server failure requires independent review"})
         if item["access"] == "protected" and status not in (401, 403):
             findings.append({"path": path, "id": "protected-route-auth-contract",
                              "status": "REVIEW", "observed_status": status,
@@ -93,7 +89,8 @@ def audit(base, spec):
         if headers.get("access-control-allow-credentials", "").lower() == "true" and cors == "*":
             findings.append({"path": path, "id": "cors-wildcard-with-credentials",
                              "status": "REVIEW", "reason": "CORS wildcard and credentials conflict"})
-    unreachable = any(x["status"] == "UNREACHABLE" for x in observations)
+    unreachable = (any(x["status"] == "UNREACHABLE" for x in observations)
+                   or any(f.get("status") == "INCOMPLETE" for f in findings))
     return {"schema": "nmsa-api-contract-0.1", "verdict": "INCOMPLETE" if unreachable else "REVIEW" if findings else "OBSERVED_NO_FINDINGS",
             "observations": observations, "findings": findings,
             "note": "Loopback-only GET with intentionally invalid bearer token. No real authentication or authorization bypass testing. Never evidence of absence of vulnerabilities."}

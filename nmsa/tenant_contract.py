@@ -9,21 +9,22 @@ import argparse
 import http.client
 import json
 from pathlib import Path
-from .api_contract import validate_base, SAFE_PATH
+from .safe_target import validate_fixture_origin, validate_fixture_path
 
 MAX_SPEC_BYTES = 100_000
 
 
 def validate_cases(spec):
-    cases = spec.get("cases") if isinstance(spec, dict) else None
+    if not isinstance(spec, dict) or set(spec) != {"cases"}:
+        raise ValueError("Only explicit fixture cases permitted")
+    cases = spec.get("cases")
     if not isinstance(cases, list) or not 1 <= len(cases) <= 30:
         raise ValueError("1-30 cases required")
     for case in cases:
         if not isinstance(case, dict) or set(case) != {"path", "owner", "other"}:
             raise ValueError("Each case requires path, owner and other")
         path = case["path"]
-        if not isinstance(path, str) or not SAFE_PATH.fullmatch(path) or path.startswith("//") or ".." in path:
-            raise ValueError("Unsafe path")
+        validate_fixture_path(path)
         if case["owner"] not in ("A", "B") or case["other"] not in ("A", "B") or case["owner"] == case["other"]:
             raise ValueError("Distinct fixture identities A and B required")
     return cases
@@ -44,7 +45,7 @@ def get_status(host, port, path, identity):
 
 
 def audit_tenants(base, spec):
-    host, port = validate_base(base)
+    host, port = validate_fixture_origin(base)
     cases = validate_cases(spec)
     observations, findings = [], []
     for i, case in enumerate(cases):
@@ -86,7 +87,7 @@ def main(argv=None):
     if not src.is_file() or src.stat().st_size > MAX_SPEC_BYTES or not out.parent.is_dir() or src == out:
         parser.error("Invalid input/output path")
     try:
-        validate_base(args.base)
+        validate_fixture_origin(args.base)
         spec = json.loads(src.read_text(encoding="utf-8"))
         validate_cases(spec)
     except (ValueError, TypeError):
