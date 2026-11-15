@@ -63,3 +63,7 @@ python -m nmsa.sandbox checks Docker Linux daemon readiness. python -m nmsa.sand
 ## JavaScript / Node.js / Vercel and API contracts (v0.6)
 
 All bundled JS and Vercel Semgrep rules run automatically alongside Python rules. API contract probes are a separate opt-in **loopback-only** GET utility: python -m nmsa.api_contract --base http://127.0.0.1:PORT --spec contract.json --output report.json. This is not an authorization pen test. See [v0.6 security scope](docs/JS-API-SECURITY-0.6.md).
+
+## Tenant isolation fixtures (v0.7)
+
+python -m nmsa.tenant_contract --base http://127.0.0.1:PORT --spec fixtures.json --output report.json runs **synthetic A/B identity GET-only** tests against an explicitly launched local mock service. Not safe to point at a production service or assume it proves RLS/IDOR security. See [v0.7 contract test design](docs/TENANT-AUTH-CONTRACTS-0.7.md).
