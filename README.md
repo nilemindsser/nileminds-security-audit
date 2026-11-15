@@ -67,3 +67,7 @@ All bundled JS and Vercel Semgrep rules run automatically alongside Python rules
 ## Tenant isolation fixtures (v0.7)
 
 python -m nmsa.tenant_contract --base http://127.0.0.1:PORT --spec fixtures.json --output report.json runs **synthetic A/B identity GET-only** tests against an explicitly launched local mock service. Not safe to point at a production service or assume it proves RLS/IDOR security. See [v0.7 contract test design](docs/TENANT-AUTH-CONTRACTS-0.7.md).
+
+## Synthetic Semgrep benchmark (v0.8)
+
+Run python -m nmsa.benchmark --output benchmark.json with Semgrep CE installed. The benchmark currently covers six rules on twelve labeled toy cases and produces TP/FP/FN/TN plus precision and recall. See [benchmark limitations](docs/BENCHMARK-0.8.md). This is not a real-world security accuracy measurement.

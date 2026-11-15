@@ -1,0 +1,24 @@
+name: Synthetic Security Rule Benchmark
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned Semgrep CE
+        run: python -m pip install --disable-pip-version-check semgrep==1.184.0
+      - name: Run benchmark
+        run: python -m nmsa.benchmark --output "$RUNNER_TEMP/benchmark.json"
+      - name: Check coverage against labeled fixture expectations
+        run: |
+          python -c "import json,os; r=json.load(open(os.environ['RUNNER_TEMP']+'/benchmark.json')); assert r['total']==12 and r['TP']==6 and r['FP']==0 and r['FN']==0 and r['TN']==6, r"
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
