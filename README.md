@@ -55,3 +55,7 @@ Use python -m nmsa.review_gate prepare SOURCE --review EXTERNAL_FILE.json, then 
 ## Offline triage and prompt-injection fixtures (v0.5)
 
 Run python -m nmsa.triage INVENTORY.json --output TRIAGE.json to prioritize static review signals without executing source. Pattern-based prompt-injection checks are tested with synthetic fixtures only. See [v0.5 report](docs/TRIAGE-0.5.md). No external skill is authorized.
+
+## Restricted sandbox preview
+
+python -m nmsa.sandbox checks Docker Linux daemon readiness. python -m nmsa.sandbox --run-fixture executes a fixed benign fixture only when a locally preloaded image exists. This is NOT a validated security boundary and cannot run external skills. See [sandbox preview](docs/SANDBOX-0.5.md).
