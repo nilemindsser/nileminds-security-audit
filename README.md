@@ -51,3 +51,7 @@ Run python -m nmsa.skill_review PATH_TO_SOURCE --output PATH_TO_EXTERNAL_MANIFES
 ## Manual skill review gate (v0.4)
 
 Use python -m nmsa.review_gate prepare SOURCE --review EXTERNAL_FILE.json, then python -m nmsa.review_gate verify SOURCE --review EXTERNAL_FILE.json. Review records never authorize execution. See [v0.4 review gate](docs/REVIEW-GATE-0.4.md).
+
+## Offline triage and prompt-injection fixtures (v0.5)
+
+Run python -m nmsa.triage INVENTORY.json --output TRIAGE.json to prioritize static review signals without executing source. Pattern-based prompt-injection checks are tested with synthetic fixtures only. See [v0.5 report](docs/TRIAGE-0.5.md). No external skill is authorized.
