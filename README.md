@@ -99,3 +99,7 @@ Run python -m nmsa.sandbox_probes **only** after independently reviewing and pre
 ## v1.0 RC6 — Read-only Windows Docker diagnostics
 
 Run python -m nmsa.docker_diagnostics for bounded service/context/engine/WSL availability signals without starting services, containers or disclosing raw logs. See [RC6 diagnostics](docs/RC6-DOCKER-DIAGNOSTICS-1.0.md). This does not certify isolation.
+
+## v1.0 RC7 — Privacy-safe Docker log triage
+
+python -m nmsa.docker_log_triage reports bounded, redacted WSL/permission/engine failure-pattern counts from allowlisted local Docker files without publishing log lines, modifying the host or claiming a proven root cause. See [RC7 evidence](docs/RC7-DOCKER-LOG-TRIAGE-1.0.md).
