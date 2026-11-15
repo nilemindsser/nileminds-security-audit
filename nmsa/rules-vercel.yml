@@ -1,0 +1,33 @@
+rules:
+  - id: nmsa.vercel.api-wildcard-cors
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: "API handler returns wildcard CORS; check sensitive endpoints and credentials."
+    pattern-either:
+      - pattern: $RES.setHeader("Access-Control-Allow-Origin", "*")
+      - pattern: $RES.setHeader('Access-Control-Allow-Origin', '*')
+      - pattern: $H.set("Access-Control-Allow-Origin", "*")
+      - pattern: $H.set('Access-Control-Allow-Origin', '*')
+    metadata: {cwe: "CWE-942", confidence: MEDIUM}
+  - id: nmsa.vercel.api-reflect-origin
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: "Reflecting unvalidated Origin header may enable unintended cross-origin access."
+    pattern-either:
+      - pattern: $RES.setHeader("Access-Control-Allow-Origin", $REQ.headers.origin)
+      - pattern: $RES.setHeader("Access-Control-Allow-Origin", $REQ.headers.get("origin"))
+    metadata: {cwe: "CWE-942", confidence: MEDIUM}
+  - id: nmsa.vercel.public-env-secret
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: "A variable named NEXT_PUBLIC_*SECRET* is browser-exposed; verify classification."
+    pattern-regex: 'process\\.env\\.NEXT_PUBLIC_[A-Z0-9_]*(?:SECRET|PRIVATE_KEY|API_TOKEN|PASSWORD)[A-Z0-9_]*'
+    metadata: {cwe: "CWE-200", confidence: MEDIUM}
+  - id: nmsa.vercel.admin-auth-bypass
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: "Explicit unconditional admin authorization bypass; verify code path and environment."
+    pattern-either:
+      - pattern: if (true) { return $RES.status(200).json({admin:true}); }
+      - pattern: if (true) { return Response.json({admin:true}); }
+    metadata: {cwe: "CWE-863", confidence: LOW}

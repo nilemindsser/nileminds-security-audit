@@ -1,0 +1,21 @@
+name: JavaScript security rules
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  semgrep-fixtures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned Semgrep Community Edition
+        run: python -m pip install --disable-pip-version-check semgrep==1.184.0
+      - name: Validate all local rule packs
+        run: semgrep scan --validate --config nmsa/rules.yml --config nmsa/rules-js.yml --config nmsa/rules-vercel.yml --metrics off
+      - name: Test JS security fixtures and local API contract probes
+        run: python -m unittest discover -s tests -v

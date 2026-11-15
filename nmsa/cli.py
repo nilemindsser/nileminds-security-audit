@@ -30,7 +30,7 @@ def run(tool, target, timeout):
     with tempfile.TemporaryDirectory(prefix="nmsa-") as tmp:
         result_path = Path(tmp) / "gitleaks.json"
         if tool == "semgrep":
-            cmd = [exe, "scan", "--config", str(Path(__file__).with_name("rules.yml")), "--json", "--metrics", "off", "--disable-version-check", str(target)]
+            cmd = [exe, "scan", "--config", str(Path(__file__).with_name("rules.yml")), "--config", str(Path(__file__).with_name("rules-js.yml")), "--config", str(Path(__file__).with_name("rules-vercel.yml")), "--json", "--metrics", "off", "--disable-version-check", str(target)]
         elif tool == "gitleaks":
             cmd = [exe, "dir", str(target), "--report-format", "json", "--report-path", str(result_path), "--no-banner"]
         else:
@@ -89,8 +89,11 @@ def parse(tool, data, root):
             if not isinstance(v, dict):
                 continue
             rule_id = str(v.get("check_id", "unknown"))
-            if "nmsa.python." in rule_id:
-                rule_id = rule_id[rule_id.find("nmsa.python."):]
+            # Semgrep prefixes custom rule IDs with absolute config directories.
+            # Report stable IDs without exposing local scanner installation paths.
+            match = re.search(r"nmsa\.(?:python|js|node|vercel)\.[A-Za-z0-9_.-]+$", rule_id)
+            if match:
+                rule_id = match.group(0)
             add(results, tool, rule_id, v.get("extra", {}).get("severity", "INFO"),
                 v.get("path"), v.get("start", {}).get("line"), root)
     elif tool == "gitleaks" and isinstance(data, list):
