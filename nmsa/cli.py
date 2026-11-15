@@ -30,7 +30,7 @@ def run(tool, target, timeout):
     with tempfile.TemporaryDirectory(prefix="nmsa-") as tmp:
         result_path = Path(tmp) / "gitleaks.json"
         if tool == "semgrep":
-            cmd = [exe, "scan", "--config", str(Path(__file__).with_name("rules.yml")), "--config", str(Path(__file__).with_name("rules-js.yml")), "--config", str(Path(__file__).with_name("rules-vercel.yml")), "--config", str(Path(__file__).with_name("rules-storage.yml")), "--json", "--metrics", "off", "--disable-version-check", str(target)]
+            cmd = [exe, "scan", "--config", str(Path(__file__).with_name("rules.yml")), "--config", str(Path(__file__).with_name("rules-js.yml")), "--config", str(Path(__file__).with_name("rules-vercel.yml")), "--config", str(Path(__file__).with_name("rules-storage.yml")), "--config", str(Path(__file__).with_name("rules-taint.yml")), "--json", "--metrics", "off", "--disable-version-check", str(target)]
         elif tool == "gitleaks":
             cmd = [exe, "dir", str(target), "--report-format", "json", "--report-path", str(result_path), "--no-banner"]
         else:
