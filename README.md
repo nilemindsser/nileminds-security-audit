@@ -87,3 +87,7 @@ API and tenant contract probes now require literal http://127.0.0.1:PORT and sim
 ## v1.0 RC3 — Immutable sandbox image ID
 
 The benign Docker fixture now requires NMSA_SANDBOX_IMAGE_ID=sha256:<64-hex> for a verified locally installed image and uses --pull never. A mutable tag is never used to execute the fixture. See [RC3 design and blockers](docs/RC3-IMMUTABLE-SANDBOX-1.0.md). Docker runtime isolation remains unverified.
+
+## v1.0 RC4 — Docker runtime stability gate
+
+python -m nmsa.runtime_gate --samples 3 --delay 2 requires repeated Docker Linux readiness. The fixed sandbox fixture now blocks startup when the engine drops after initially responding; liveness does **not** prove security isolation. See [RC4 runtime report](docs/RC4-RUNTIME-STABILITY-1.0.md).

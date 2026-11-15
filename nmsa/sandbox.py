@@ -14,6 +14,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+from .runtime_gate import verify as verify_runtime
 
 IMAGE = "python:3.12.9-alpine3.21"  # documentation only, never executed by mutable tag
 DIGEST_RE = re.compile(r"sha256:[0-9a-f]{64}\Z")
@@ -72,6 +73,9 @@ def run_fixture():
     state = readiness()
     if state["status"] != "READY_FOR_FIXTURE":
         return {"status": "BLOCKED", "reason": state["reason"]}
+    stable = verify_runtime(samples=3, delay=1)
+    if stable["status"] != "STABLE_FOR_FIXTURE_PRECHECK":
+        return {"status": "BLOCKED", "reason": "docker_daemon_not_stable"}
     image_id = os.environ.get("NMSA_SANDBOX_IMAGE_ID", "")
     if not DIGEST_RE.fullmatch(image_id):
         return {"status": "BLOCKED", "reason": "immutable_image_id_required"}
