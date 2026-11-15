@@ -14,3 +14,13 @@ rules:
     severity: WARNING
     message: "Review subprocess execution with shell=True."
     pattern: subprocess.$FUNC(..., shell=True, ...)
+  - id: nmsa.node.public-blob-data-write
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: "A data/ object is written to publicly readable Blob storage. Confirm the data and object path are intentionally public."
+    pattern: |
+      await $PUT("data/" + $NAME, $BODY, { ..., access: "public", ... })
+    metadata:
+      cwe: "CWE-200"
+      confidence: MEDIUM
+      category: audit-signal
