@@ -7,13 +7,16 @@ guarantee against container escapes or a compromised container runtime.
 from __future__ import annotations
 
 import argparse
+import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
 import shutil
 import subprocess
 import sys
 
-IMAGE = "python:3.12.9-alpine3.21"
+IMAGE = "python:3.12.9-alpine3.21"  # documentation only, never executed by mutable tag
+DIGEST_RE = re.compile(r"sha256:[0-9a-f]{64}\Z")
 FIXTURE = "print('NMSA_SANDBOX_FIXTURE_OK')"
 MARKER = "NMSA_SANDBOX_FIXTURE_OK"
 
@@ -26,12 +29,15 @@ class SandboxSpec:
     pids_limit: int = 32
 
 
-def docker_command(spec: SandboxSpec = SandboxSpec()):
+def docker_command(spec: SandboxSpec = SandboxSpec(), image_id: str | None = None):
     """Return a constant, locked-down test command, never a free-form script."""
     if spec != SandboxSpec():
         raise ValueError("Only the audited fixture profile is allowed")
+    image_id = image_id or os.environ.get("NMSA_SANDBOX_IMAGE_ID", "")
+    if not DIGEST_RE.fullmatch(image_id):
+        raise ValueError("Explicit immutable local image ID sha256:<64 lowercase hex> required")
     return [
-        "docker", "run", "--rm",
+        "docker", "run", "--rm", "--pull", "never",
         "--network", "none",
         "--read-only",
         "--cap-drop", "ALL",
@@ -44,7 +50,7 @@ def docker_command(spec: SandboxSpec = SandboxSpec()):
         "--env", "PYTHONDONTWRITEBYTECODE=1",
         "--env", "PYTHONNOUSERSITE=1",
         "--workdir", "/tmp",
-        spec.image, "python", "-I", "-S", "-c", FIXTURE,
+        image_id, "python", "-I", "-S", "-c", FIXTURE,
     ]
 
 
@@ -66,15 +72,19 @@ def run_fixture():
     state = readiness()
     if state["status"] != "READY_FOR_FIXTURE":
         return {"status": "BLOCKED", "reason": state["reason"]}
+    image_id = os.environ.get("NMSA_SANDBOX_IMAGE_ID", "")
+    if not DIGEST_RE.fullmatch(image_id):
+        return {"status": "BLOCKED", "reason": "immutable_image_id_required"}
     try:
-        # Explicitly no automatic image pull; use an independently reviewed,
-        # preloaded image. This check will fail closed when no pinned image exists.
-        inspect = subprocess.run(["docker", "image", "inspect", IMAGE],
+        # The caller explicitly selects an inspected immutable *local* image ID.
+        # No automatic pull and never run against a mutable repo tag.
+        inspect = subprocess.run(["docker", "image", "inspect", image_id,
+                                  "--format", "{{.Id}}"],
                                  capture_output=True, text=True, encoding="utf-8",
                                  errors="replace", timeout=10, shell=False)
-        if inspect.returncode != 0:
-            return {"status": "BLOCKED", "reason": "fixture_image_not_preloaded"}
-        result = subprocess.run(docker_command(), capture_output=True, text=True,
+        if inspect.returncode != 0 or inspect.stdout.strip() != image_id:
+            return {"status": "BLOCKED", "reason": "image_id_not_verified_locally"}
+        result = subprocess.run(docker_command(image_id=image_id), capture_output=True, text=True,
                                 encoding="utf-8", errors="replace", timeout=45, shell=False)
     except (OSError, subprocess.TimeoutExpired):
         return {"status": "BLOCKED", "reason": "fixture_runtime_failure"}
