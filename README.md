@@ -103,3 +103,7 @@ Run python -m nmsa.docker_diagnostics for bounded service/context/engine/WSL ava
 ## v1.0 RC7 — Privacy-safe Docker log triage
 
 python -m nmsa.docker_log_triage reports bounded, redacted WSL/permission/engine failure-pattern counts from allowlisted local Docker files without publishing log lines, modifying the host or claiming a proven root cause. See [RC7 evidence](docs/RC7-DOCKER-LOG-TRIAGE-1.0.md).
+
+## v1.0 RC8 — Read-only Docker UTC failure timeline
+
+python -m nmsa.docker_timeline correlates bounded local Docker/WSL failure signals into redacted UTC hourly buckets. Time coincidence is not causation or proof of sandbox security. See [RC8 evidence](docs/RC8-DOCKER-TIMELINE-1.0.md).
