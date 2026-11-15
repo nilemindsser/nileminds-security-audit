@@ -59,3 +59,7 @@ Run python -m nmsa.triage INVENTORY.json --output TRIAGE.json to prioritize stat
 ## Restricted sandbox preview
 
 python -m nmsa.sandbox checks Docker Linux daemon readiness. python -m nmsa.sandbox --run-fixture executes a fixed benign fixture only when a locally preloaded image exists. This is NOT a validated security boundary and cannot run external skills. See [sandbox preview](docs/SANDBOX-0.5.md).
+
+## JavaScript / Node.js / Vercel and API contracts (v0.6)
+
+All bundled JS and Vercel Semgrep rules run automatically alongside Python rules. API contract probes are a separate opt-in **loopback-only** GET utility: python -m nmsa.api_contract --base http://127.0.0.1:PORT --spec contract.json --output report.json. This is not an authorization pen test. See [v0.6 security scope](docs/JS-API-SECURITY-0.6.md).

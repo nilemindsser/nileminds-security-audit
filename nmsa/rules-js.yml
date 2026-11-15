@@ -1,0 +1,45 @@
+rules:
+  - id: nmsa.js.eval-call
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: "Dynamic eval may execute untrusted content; verify source and remove where possible."
+    pattern: eval(...)
+    metadata: {cwe: "CWE-95", confidence: MEDIUM}
+  - id: nmsa.js.function-constructor
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: "Dynamic Function constructor can execute injected code."
+    pattern: new Function(...)
+    metadata: {cwe: "CWE-95", confidence: MEDIUM}
+  - id: nmsa.node.child-process-exec
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: "Shell command execution requires independent input-flow verification."
+    patterns:
+      - pattern-either:
+          - pattern: $CP.exec(...)
+          - pattern: $CP.execSync(...)
+      - metavariable-regex:
+          metavariable: $CP
+          regex: "^(child_process|cp)$"
+    metadata: {cwe: "CWE-78", confidence: LOW}
+  - id: nmsa.node.tls-verification-disabled
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: "TLS certificate verification explicitly disabled."
+    pattern: process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
+    metadata: {cwe: "CWE-295", confidence: HIGH}
+  - id: nmsa.node.unsafe-deserialization
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: "Review node-serialize deserialization of potentially untrusted data."
+    pattern: $SER.unserialize(...)
+    metadata: {cwe: "CWE-502", confidence: LOW}
+  - id: nmsa.node.express-open-cors
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: "Wildcard CORS on a Node server; review whether credentials or private data are exposed."
+    pattern-either:
+      - pattern: $APP.use(cors({origin:"*", ...}))
+      - pattern: $APP.use(cors({origin:'*', ...}))
+    metadata: {cwe: "CWE-942", confidence: MEDIUM}
