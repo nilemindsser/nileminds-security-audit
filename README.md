@@ -123,3 +123,7 @@ python -m nmsa.node_sandbox_probe --run runs only the fixed Node fixture with a 
 ## v1.0 RC12 — Cross-process Docker readiness
 
 python -m nmsa.cross_session_gate --capture <marker> and --confirm <marker> test Linux Docker liveness from separate processes; a marker is local and untrusted, and success does not prove security isolation. RC12 Windows field check returned BLOCKED because Docker Desktop vanished across DeskMCP process sessions. See [RC12 evidence](docs/RC12-CROSS-SESSION-DOCKER-GATE-1.0.md).
+
+## v1.0 RC13 ? Docker launcher lifecycle evidence
+
+The cross-process gate now labels a successful second-process check as `CROSS_PROCESS_LIVENESS_ONLY`, not proof that Docker survives exit of the launcher session. Controlled Windows checks showed Docker available from a separate process only while the original launcher session remained open. See [RC13 lifecycle evidence](docs/RC13-DOCKER-LAUNCHER-LIFECYCLE-1.0.md). No persistent service was installed or configured.
