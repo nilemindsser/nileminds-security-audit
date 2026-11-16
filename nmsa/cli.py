@@ -13,6 +13,7 @@ import subprocess
 import sys
 import tempfile
 from .reports import sarif, html
+from .offline_vulnerability_review import parse_db_next_update
 
 TOOLS = {"semgrep": True, "gitleaks": True, "trivy": True}
 SKIP_DIRS = {".git", "node_modules", ".venv", "venv", "dist", "build"}
@@ -27,6 +28,23 @@ def run(tool, target, timeout):
             exe = str(Path(configured).resolve())
     if not exe:
         return {"tool": tool, "status": "NOT_INSTALLED", "findings": [], "message": "Install manually from the official project"}
+    # Shared RC16 DB freshness policy: --skip-db-update is NOT evidence that
+    # the installed vulnerability database is current. Never report PASS
+    # using expired, missing, or unparseable Trivy vulnerability metadata.
+    if tool == "trivy":
+        try:
+            version = subprocess.run(
+                [exe, "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                text=True, encoding="utf-8", errors="replace",
+                timeout=min(15, timeout), shell=False,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            return {"tool": tool, "status": "ERROR", "findings": [],
+                    "message": "Trivy vulnerability database metadata unavailable"}
+        next_update = parse_db_next_update(version.stdout) if version.returncode == 0 else None
+        if next_update is None or next_update <= dt.datetime.now(dt.timezone.utc):
+            return {"tool": tool, "status": "INCOMPLETE", "findings": [],
+                    "message": "Trivy vulnerability DB freshness unverified or expired"}
     with tempfile.TemporaryDirectory(prefix="nmsa-") as tmp:
         result_path = Path(tmp) / "gitleaks.json"
         if tool == "semgrep":
@@ -34,7 +52,7 @@ def run(tool, target, timeout):
         elif tool == "gitleaks":
             cmd = [exe, "dir", str(target), "--report-format", "json", "--report-path", str(result_path), "--no-banner"]
         else:
-            cmd = [exe, "fs", "--format", "json", "--scanners", "vuln,misconfig,secret", "--no-progress", "--skip-db-update", "--skip-java-db-update", str(target)]
+            cmd = [exe, "fs", "--format", "json", "--scanners", "vuln,misconfig,secret", "--no-progress", "--offline-scan", "--skip-db-update", "--skip-java-db-update", str(target)]
         env = dict(os.environ)
         env["DO_NOT_TRACK"] = "1"
         try:
@@ -46,11 +64,27 @@ def run(tool, target, timeout):
             return {"tool": tool, "status": "ERROR", "findings": [], "message": type(e).__name__}
         raw = result_path.read_text(encoding="utf-8") if tool == "gitleaks" and result_path.exists() else proc.stdout
         try:
-            data = json.loads(raw) if raw.strip() else ([] if tool == "gitleaks" else {})
+            data = json.loads(raw) if raw.strip() else None
         except (ValueError, UnicodeError):
             return {"tool": tool, "status": "ERROR", "findings": [], "message": "Invalid scanner JSON; stderr suppressed to avoid leaking secrets"}
-        if tool == "semgrep" and isinstance(data, dict) and data.get("errors"):
+        if tool == "semgrep" and (
+            not isinstance(data, dict) or
+            not isinstance(data.get("results"), list) or
+            not isinstance(data.get("errors", []), list)
+        ):
+            return {"tool": tool, "status": "INCOMPLETE", "findings": [],
+                    "message": "Semgrep result schema missing or malformed"}
+        if tool == "semgrep" and data["errors"]:
             return {"tool": tool, "status": "ERROR", "findings": [], "message": "Semgrep reported parse or configuration errors"}
+        if tool == "gitleaks" and not isinstance(data, list):
+            return {"tool": tool, "status": "INCOMPLETE", "findings": [],
+                    "message": "Gitleaks report schema missing or malformed"}
+        if (tool == "trivy" and
+            (not isinstance(data, dict) or
+             not isinstance(data.get("Results"), list) or
+             not data["Results"])):
+            return {"tool": tool, "status": "INCOMPLETE", "findings": [],
+                    "message": "Trivy scan coverage missing or unverified"}
         items = parse(tool, data, target)
         # Gitleaks 1 = secrets found; Semgrep 1 = findings; Trivy 0 normally.
         accepted = (0, 1) if tool in ("gitleaks", "semgrep") else (0,)

@@ -143,3 +143,7 @@ The cross-process gate now labels a successful second-process check as `CROSS_PR
 ## v1.0 RC17 ? Offline Sigstore signed-blob review
 
 `python -m nmsa.sigstore_bundle_review` runs a constrained offline Cosign bundle check only when a local signed blob, bundle, independently approved trusted root, signer identity and issuer are supplied. It never accepts identities inferred from the bundle, and signed-blob success never proves Docker image provenance or authorizes production. Cosign and trusted artifacts are currently missing; see [RC17 evidence](docs/RC17-SIGSTORE-BUNDLE-REVIEW-1.0.md).
+
+## v1.0 RC18 ? Internal security integration review
+
+The main CLI scanner now checks Trivy DB freshness using the shared RC16 policy and refuses to treat missing Semgrep, Gitleaks, or Trivy report coverage as a clean result. Scanner-assisted self-review found a likely false-positive Gitleaks signal on a documented Git SHA snapshot; no detector was suppressed. This is an *internal* assessment, not independent certification. See [RC18 audit](docs/RC18-SECURITY-INTEGRATION-REVIEW-1.0.md). Production and external skills remain blocked.
