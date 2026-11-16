@@ -139,3 +139,7 @@ The cross-process gate now labels a successful second-process check as `CROSS_PR
 ## v1.0 RC16 ? Local-only vulnerability review
 
 `python -m nmsa.offline_vulnerability_review --image-id sha256:<64 lowercase hex>` requires an unexpired local Trivy database and performs no DB updates, network dependency lookups, image pulls or container execution. Valid scan results are only REVIEW_REQUIRED; signatures, SBOM and provenance remain unverified. See [RC16 evidence](docs/RC16-OFFLINE-VULNERABILITY-REVIEW-1.0.md).
+
+## v1.0 RC17 ? Offline Sigstore signed-blob review
+
+`python -m nmsa.sigstore_bundle_review` runs a constrained offline Cosign bundle check only when a local signed blob, bundle, independently approved trusted root, signer identity and issuer are supplied. It never accepts identities inferred from the bundle, and signed-blob success never proves Docker image provenance or authorizes production. Cosign and trusted artifacts are currently missing; see [RC17 evidence](docs/RC17-SIGSTORE-BUNDLE-REVIEW-1.0.md).
