@@ -18,7 +18,10 @@ class CrossSessionGateTests(unittest.TestCase):
             b = confirm(marker, probe=lambda **kw: PASS, clock=lambda: 101,
                         process_id=lambda: 456)
             self.assertEqual(a["status"], "CAPTURED")
-            self.assertEqual(b["status"], "CROSS_PROCESS_LIVENESS_PASS")
+            self.assertEqual(b["status"], "CROSS_PROCESS_LIVENESS_ONLY")
+            self.assertTrue(b["cross_process_verified"])
+            self.assertFalse(b["cross_session_verified"])
+            self.assertFalse(b["launcher_exit_verified"])
             self.assertFalse(b["isolation_verified"])
 
     def test_engine_dies_after_first_process(self):

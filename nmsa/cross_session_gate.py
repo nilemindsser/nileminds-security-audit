@@ -1,5 +1,9 @@
 """Explicit two-phase Docker liveness gate across distinct OS processes.
 
+Separate processes are NOT independent desktop/agent sessions: a Docker
+Desktop child can survive while its launcher shell is held open, then exit
+when that launcher terminates. Never equate PID difference to session survival.
+
 A marker is untrusted diagnostic data, not authentication or security
 certification. The second phase cannot repair/start Docker or run images.
 """
@@ -80,10 +84,11 @@ def confirm(marker, *, probe=verify, clock=time.time, process_id=os.getpid):
     current = probe(samples=3, delay=1)
     ok = current.get("status") == "STABLE_FOR_FIXTURE_PRECHECK"
     return {
-        "status": "CROSS_PROCESS_LIVENESS_PASS" if ok else "BLOCKED",
+        "status": "CROSS_PROCESS_LIVENESS_ONLY" if ok else "BLOCKED",
         "reason": "two_process_readiness_observed" if ok else "daemon_unavailable_after_session_boundary",
-        "cross_session_verified": ok, "isolation_verified": False,
-        "note": "Diagnostic marker is user-editable and not cryptographic proof; no independent container isolation was established",
+        "cross_process_verified": ok, "cross_session_verified": False,
+        "launcher_exit_verified": False, "isolation_verified": False,
+        "note": "Separate process PIDs do not prove survival of the Docker launcher session or independent isolation",
     }
 
 
@@ -99,7 +104,7 @@ def main(argv=None):
         result = {"status": "BLOCKED", "reason": "marker_write_failed",
                   "cross_session_verified": False, "isolation_verified": False}
     print(json.dumps(result, sort_keys=True))
-    return 0 if result["status"] in ("CAPTURED", "CROSS_PROCESS_LIVENESS_PASS") else 2
+    return 0 if result["status"] in ("CAPTURED", "CROSS_PROCESS_LIVENESS_ONLY") else 2
 
 
 if __name__ == "__main__":
