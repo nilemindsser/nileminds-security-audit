@@ -131,3 +131,7 @@ The cross-process gate now labels a successful second-process check as `CROSS_PR
 ## v1.0 RC14 ? Release assurance readiness gate
 
 `python -m nmsa.release_assurance` provides a fail-closed evidence-based summary for CI, container behavior, Docker launcher lifecycle, image provenance, independent review and owner release decision. Current snapshot is BLOCKED. Passing all self-declared conditions never auto-authorizes production or execution of third-party skills. See [RC14 release gates](docs/RC14-RELEASE-ASSURANCE-GATES-1.0.md).
+
+## v1.0 RC15 ? Local image identity and provenance precheck
+
+`python -m nmsa.image_provenance --image-id sha256:<64 lowercase hex>` checks bounded local Docker image metadata without executing or pulling images. A matching ID or registry digest does not verify image signatures, software bill of materials, or trusted supply chain. Real cached Node image precheck succeeded, but independent provenance review remains PENDING. See [RC15 evidence](docs/RC15-IMAGE-PROVENANCE-PRECHECK-1.0.md).
