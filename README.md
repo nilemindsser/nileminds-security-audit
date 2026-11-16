@@ -127,3 +127,7 @@ python -m nmsa.cross_session_gate --capture <marker> and --confirm <marker> test
 ## v1.0 RC13 ? Docker launcher lifecycle evidence
 
 The cross-process gate now labels a successful second-process check as `CROSS_PROCESS_LIVENESS_ONLY`, not proof that Docker survives exit of the launcher session. Controlled Windows checks showed Docker available from a separate process only while the original launcher session remained open. See [RC13 lifecycle evidence](docs/RC13-DOCKER-LAUNCHER-LIFECYCLE-1.0.md). No persistent service was installed or configured.
+
+## v1.0 RC14 ? Release assurance readiness gate
+
+`python -m nmsa.release_assurance` provides a fail-closed evidence-based summary for CI, container behavior, Docker launcher lifecycle, image provenance, independent review and owner release decision. Current snapshot is BLOCKED. Passing all self-declared conditions never auto-authorizes production or execution of third-party skills. See [RC14 release gates](docs/RC14-RELEASE-ASSURANCE-GATES-1.0.md).
