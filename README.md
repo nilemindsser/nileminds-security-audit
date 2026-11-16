@@ -135,3 +135,7 @@ The cross-process gate now labels a successful second-process check as `CROSS_PR
 ## v1.0 RC15 ? Local image identity and provenance precheck
 
 `python -m nmsa.image_provenance --image-id sha256:<64 lowercase hex>` checks bounded local Docker image metadata without executing or pulling images. A matching ID or registry digest does not verify image signatures, software bill of materials, or trusted supply chain. Real cached Node image precheck succeeded, but independent provenance review remains PENDING. See [RC15 evidence](docs/RC15-IMAGE-PROVENANCE-PRECHECK-1.0.md).
+
+## v1.0 RC16 ? Local-only vulnerability review
+
+`python -m nmsa.offline_vulnerability_review --image-id sha256:<64 lowercase hex>` requires an unexpired local Trivy database and performs no DB updates, network dependency lookups, image pulls or container execution. Valid scan results are only REVIEW_REQUIRED; signatures, SBOM and provenance remain unverified. See [RC16 evidence](docs/RC16-OFFLINE-VULNERABILITY-REVIEW-1.0.md).
