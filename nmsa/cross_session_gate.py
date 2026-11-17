@@ -104,7 +104,7 @@ def main(argv=None):
         result = {"status": "BLOCKED", "reason": "marker_write_failed",
                   "cross_session_verified": False, "isolation_verified": False}
     print(json.dumps(result, sort_keys=True))
-    return 0 if result["status"] in ("CAPTURED", "CROSS_PROCESS_LIVENESS_ONLY") else 2
+    return 0 if result["status"] == "CAPTURED" else 2
 
 
 if __name__ == "__main__":
