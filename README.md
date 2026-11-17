@@ -147,3 +147,7 @@ The cross-process gate now labels a successful second-process check as `CROSS_PR
 ## v1.0 RC18 ? Internal security integration review
 
 The main CLI scanner now checks Trivy DB freshness using the shared RC16 policy and refuses to treat missing Semgrep, Gitleaks, or Trivy report coverage as a clean result. Scanner-assisted self-review found a likely false-positive Gitleaks signal on a documented Git SHA snapshot; no detector was suppressed. This is an *internal* assessment, not independent certification. See [RC18 audit](docs/RC18-SECURITY-INTEGRATION-REVIEW-1.0.md). Production and external skills remain blocked.
+
+## v1.0 RC19 ? Docker launcher lifecycle closure evidence
+
+Repeated controlled tests established 3/3 Docker readiness while its initiating DeskMCP session stayed alive and 0/3 once it exited. The exact cause is not proven. `nmsa.cross_session_gate` now exits nonzero for `CROSS_PROCESS_LIVENESS_ONLY` so scripts cannot treat a second process as successful launcher-session persistence. Docker stability and production readiness remain BLOCKED. See [RC19 report](docs/RC19-LAUNCHER-LIFECYCLE-CLOSURE-1.0.md).
