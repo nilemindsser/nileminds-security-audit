@@ -155,3 +155,7 @@ Repeated controlled tests established 3/3 Docker readiness while its initiating 
 ## v1.0 RC20 ? Cached image vulnerability closure
 
 The local Trivy vulnerability DB was updated on 2026-11-17 and an existing pinned local Node image was scanned without image pulls. Result: 7 critical, 72 high, 145 medium, 96 low and 10 unknown vulnerability signals requiring triage. `nmsa.offline_vulnerability_review` now emits explicit critical/high risk and always blocks release self-authorization, even with no findings. Image provenance, SBOM review, independent security approval and Docker launcher persistence remain unresolved. See [RC20 evidence](docs/RC20-SUPPLY-CHAIN-VULNERABILITY-CLOSURE-1.0.md).
+
+## v1.0 RC21 ? Independent security audit handoff
+
+The [RC21 external-review handoff](docs/RC21-INDEPENDENT-SECURITY-AUDIT-HANDOFF-1.0.md) defines a pinned baseline, scope, safe reproduction checklist and required independent report. It is a **handoff**, not a completed review or production approval. The release remains blocked until a separate reviewer and the owner explicitly close the gates.
