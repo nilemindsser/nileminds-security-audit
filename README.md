@@ -151,3 +151,7 @@ The main CLI scanner now checks Trivy DB freshness using the shared RC16 policy 
 ## v1.0 RC19 ? Docker launcher lifecycle closure evidence
 
 Repeated controlled tests established 3/3 Docker readiness while its initiating DeskMCP session stayed alive and 0/3 once it exited. The exact cause is not proven. `nmsa.cross_session_gate` now exits nonzero for `CROSS_PROCESS_LIVENESS_ONLY` so scripts cannot treat a second process as successful launcher-session persistence. Docker stability and production readiness remain BLOCKED. See [RC19 report](docs/RC19-LAUNCHER-LIFECYCLE-CLOSURE-1.0.md).
+
+## v1.0 RC20 ? Cached image vulnerability closure
+
+The local Trivy vulnerability DB was updated on 2026-11-17 and an existing pinned local Node image was scanned without image pulls. Result: 7 critical, 72 high, 145 medium, 96 low and 10 unknown vulnerability signals requiring triage. `nmsa.offline_vulnerability_review` now emits explicit critical/high risk and always blocks release self-authorization, even with no findings. Image provenance, SBOM review, independent security approval and Docker launcher persistence remain unresolved. See [RC20 evidence](docs/RC20-SUPPLY-CHAIN-VULNERABILITY-CLOSURE-1.0.md).
