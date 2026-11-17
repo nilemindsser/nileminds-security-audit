@@ -14,6 +14,7 @@ FIELDS = (
     "real_container_behavior",
     "launcher_exit_persistence",
     "image_provenance_review",
+    "image_vulnerability_triage",
     "independent_security_review",
     "owner_release_decision",
 )
@@ -25,6 +26,7 @@ RC13_EVIDENCE_SNAPSHOT = {
     "real_container_behavior": "PASS",
     "launcher_exit_persistence": "FAIL",
     "image_provenance_review": "PENDING",
+    "image_vulnerability_triage": "PENDING",  # RC20: 7 critical / 72 high signals
     "independent_security_review": "NOT_RUN",
     "owner_release_decision": "PENDING",
 }
@@ -46,15 +48,17 @@ def assess(evidence):
     # out-of-band by the release manager before any actual authorization.
     state = "BLOCKED" if blocked else "REVIEW_REQUIRED"
     return {
-        "schema": "nmsa-release-assurance-rc14",
+        "schema": "nmsa-release-assurance-rc22",
         "status": state,
         "checks": checks,
         "blocking_gates": blocked,
+        "evidence_snapshot": "HISTORICAL_NOT_LIVE",
+        "source_ci_freshness_verified": False,
         "independent_review_required": True,
         "security_certified": False,
         "production_authorized": False,
         "external_skill_execution_authorized": False,
-        "note": "Declared evidence is not cryptographic attestation; owner approval and independent security validation are separate external decisions",
+        "note": "Historical self-declared evidence is neither live CI validation nor cryptographic attestation; owner approval and independent security validation are separate decisions",
     }
 
 
