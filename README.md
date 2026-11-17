@@ -159,3 +159,7 @@ The local Trivy vulnerability DB was updated on 2026-11-17 and an existing pinne
 ## v1.0 RC21 ? Independent security audit handoff
 
 The [RC21 external-review handoff](docs/RC21-INDEPENDENT-SECURITY-AUDIT-HANDOFF-1.0.md) defines a pinned baseline, scope, safe reproduction checklist and required independent report. It is a **handoff**, not a completed review or production approval. The release remains blocked until a separate reviewer and the owner explicitly close the gates.
+
+## v1.0 RC22 ? Release-candidate preflight (BLOCKED)
+
+The [RC22 release gate](docs/RC22-RELEASE-PREFLIGHT-BLOCKERS-1.0.md) adds an explicit blocker for untriaged RC20 image vulnerabilities, marks CI evidence as historical rather than live, and preserves non-authorizing semantics. No stable v1.0 tag or production use is approved.
